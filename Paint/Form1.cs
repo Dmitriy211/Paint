@@ -23,7 +23,7 @@ namespace Paint
             //g = pictureBox1.CreateGraphics();
         }
 
-        Point prPntж
+        Point prPnt;
         Graphics g;
         GraphicsPath gp = new GraphicsPath();
         Point curPnt;
