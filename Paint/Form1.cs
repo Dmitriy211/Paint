@@ -152,7 +152,7 @@ namespace Paint
         }
         Color color = Color.Red;
         Color colorOrigin;
-        float width;
+        float width = 1;
 
         private void Clear_btn_Click(object sender, EventArgs e)
         {
@@ -181,8 +181,6 @@ namespace Paint
         private void Fill(Point mouseLoc)
         {     
             colorOrigin = bmp.GetPixel(mouseLoc.X, mouseLoc.Y);
-            if (colorOrigin == color)
-                return;
             q.Enqueue(mouseLoc);                       
             while (q.Count > 0)
             {                
