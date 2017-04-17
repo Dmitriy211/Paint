@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Paint
@@ -30,9 +31,11 @@ namespace Paint
         bool endLine = true;
         Point X;
         Queue<Point> q = new Queue<Point>();
+        Point mouse = new Point();
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            mouse = e.Location;
             prPnt = e.Location;
             X = e.Location;
 
@@ -42,30 +45,34 @@ namespace Paint
             if (Instrument_box.Text == "Fill")
                 Fill(e.Location);
 
+            endLine = false;
+
             if (Instrument_box.Text == "Spray")                         /////////////////////////////////
             {
-                int k = 0;
+                /*int k = 0;
                 while (k <= width)
                 {
                     Spray(e.Location);
                     k++;
-                }
-                pictureBox1.Refresh();
-            }
-
-            endLine = false;
+                }*/
+                timer1.Start();
+                //pictureBox1.Refresh();
+            }            
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
+            mouse = e.Location;
             g.DrawPath(new Pen(color, width), gp);
-            endLine = true;          
+            endLine = true;
+            timer1.Stop();
         }
 
         
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
+            mouse = e.Location;
             gp.Reset();
 
             if (e.Button == MouseButtons.Left && Instrument_box.Text == "Brush")
@@ -199,17 +206,20 @@ namespace Paint
             bmp.SetPixel(x, y, color);
             q.Enqueue(new Point(x, y));
         }
+
         Random rpx = new Random();
+
         private void Spray(Point mouseLoc)                      //////////////////////////////////////////////
         {
         SprayBegin:
-
-            Point rp = new Point();
-            
+            Point rp = new Point();            
             rp.X = rpx.Next((int)mouseLoc.X - (int)width / 2, (int)mouseLoc.X + (int)width / 2);            
             rp.Y = rpx.Next((int)mouseLoc.Y - (int)width / 2, (int)mouseLoc.Y + (int)width / 2);
             if ((rp.X - mouseLoc.X) * (rp.X - mouseLoc.X) + (rp.Y - mouseLoc.Y) * (rp.Y - mouseLoc.Y) < (width / 2) * (width / 2))
-                bmp.SetPixel(rp.X, rp.Y, color);
+            {
+                if (rp.X < pictureBox1.Width && rp.X > 0 && rp.Y > 0 && rp.Y < pictureBox1.Height)
+                    bmp.SetPixel(rp.X, rp.Y, color);
+            }
             else goto SprayBegin;            
         }
 
@@ -219,5 +229,17 @@ namespace Paint
             if (sfd.ShowDialog() == DialogResult.OK)
                 pictureBox1.Image.Save(sfd.FileName);
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            int k = 0;
+            while (k <= width)
+            {
+                Spray(mouse);
+                k++;
+            }
+            pictureBox1.Refresh();
+        }
+
     }
 }
